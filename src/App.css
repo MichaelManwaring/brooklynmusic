@@ -4,11 +4,54 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  height: 10vh;
+  width: 100%;
+  z-index: 10;
+  position: fixed;
+  top: 0;
+  left: 0;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: 2vh;
   color: white;
+}
+
+.venue-list {
+  z-index: 10;
+  background-color: #8392B4;
+  position: fixed;
+  width: 30vw;
+  height: 90vh;
+  top: 10vh;
+  overflow: scroll;
+}
+
+.map-container {
+  position: fixed;
+  top: 10vh;
+  right: 0;
+  width: 70vw;
+  height: 90vh;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+  border-bottom: 1px solid #ccc;
+  padding: 4px;
+  color: black;
+  text-align: left;
+  text-decoration: none;
+  display: block;
+  transition: font-size 0.2s ease, background-color 0.2s ease;
+}
+
+li:hover {
+  font-size: 30px;
+  background: #f6f6f6;
 }
