@@ -1,39 +1,19 @@
 import React, { Component } from 'react';
 import './App.css';
 
-import ConcertMap from './components/ConcertMap'
-import ControlPanel from './components/ControlPanel'
+import ConcertMap from './components/ConcertMap';
+import ControlPanel from './components/ControlPanel';
 
 class App extends Component {
   constructor(props){
     super(props);
     this.state={
       venues: [],
-      markers: []
-    }
-
+      query: ""
+    };
+    this.filterVenues = this.filterVenues.bind(this);
   }
-
-  // Forrest Handle Functions
-  closeAllMarkers = () => {
-    const markers = this.state.markers.map(marker => {
-      marker.isOpen = false;
-      return marker;
-    });
-    this.setState({ markers: Object.assign(this.state.markers, markers) });
-  };
-
-  handleMarkerClick = marker => {
-    this.closeAllMarkers();
-    marker.isOpen = true;
-    this.setState({ markers: Object.assign(this.state.markers, marker) });
-  };
-
-  handleListItemClick = venue => {
-    const marker = this.state.markers.find(marker => marker.key === venue.id);
-    this.handleMarkerClick(marker);
-  };
-
+  // once the app is loaded, this collects the venue info from foursquare and adds an "isOpen" category to use with the markers
   componentDidMount(){
     fetch(`https://api.foursquare.com/v2/venues/search?v=20180323
       &intent=browse
@@ -42,25 +22,38 @@ class App extends Component {
       &client_id=WT5DUCMADRKG4KK4E413T1XJMNAUAVSF0SNRS3JQVHDKBRKL
       &client_secret=02E41TTGAS4K2NNOWL5REL2UZ53WU2FW30THZYDMSHAV24XW`)
       .then(res => res.json())
-      // .then(data => this.setState({ venues: data.response.venues }))
-      // .then(data => this.setState({ markers: data.response.venues.map(venue => {
       .then(results =>  {
-        this.setState({ venues: results.response.venues })
-        const markers = results.response.venues.map(venue=> {
-          return {
-            lat: venue.location.lat,
-            lng: venue.location.lng,
-            isOpen: false,
-            isVisible: true,
-            key: venue.id
-          }
+        const venues = results.response.venues.map(venue=> {
+          return {...venue, ...{isOpen: false}}
         })
-        this.setState({ markers: markers });
+        this.setState({ venues: venues });
       })
       .catch(function() {
-        console.log('Bad foursquare Fetch')
+        alert('Foursquare did not load, this app will not be functional')
+
       });
   }
+  // passing the query change to app state
+  filterVenues(newQuery) {
+    this.setState({query: newQuery})
+  }
+
+
+  // marker / infowindow functions inspired by Forrest Walker's walkthrough, esp Object.assign()
+  closeAllMarkers = () => {
+    const markers = this.state.venues.map(marker => {
+      marker.isOpen = false;
+      return marker;
+    });
+    this.setState({ venues: Object.assign(this.state.venues, markers) });
+  };
+
+  toggleInfo = venue => {
+    this.closeAllMarkers();
+    venue.isOpen = true;
+    this.setState({ venues: Object.assign(this.state.venues, venue) });
+  };
+
 
   render() {
     return (
@@ -70,11 +63,14 @@ class App extends Component {
         </header>
         <ControlPanel
           {...this.state}
-          handleListItemClick={this.handleListItemClick}
+          filterVenues={this.filterVenues}
+          handleListItemClick={this.toggleInfo}
         /> 
         <ConcertMap
+          aria-label="Map"
+          tabIndex={-1}
           {...this.state}
-          toggleMarker={this.handleMarkerClick}
+          handleMarkerClick={this.toggleInfo}
         />
       </div>
     );
